@@ -10,7 +10,7 @@ cross-platform pipeline analysis through the Recoup research API.
 
 ```bash
 export RECOUP_API_KEY="recoup_sk_..."
-export RECOUP_API="https://recoup-api.vercel.app/api"
+export RECOUP_API="https://api.recoupable.com/api"
 ```
 
 ## Decision tree

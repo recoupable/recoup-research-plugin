@@ -6,7 +6,7 @@ All examples assume:
 
 ```bash
 export RECOUP_API_KEY="recoup_sk_..."
-export RECOUP_API="https://recoup-api.vercel.app/api"
+export RECOUP_API="https://api.recoupable.com/api"
 AUTH="x-api-key: $RECOUP_API_KEY"
 ```
 
@@ -169,7 +169,9 @@ curl -s "$RECOUP_API/research/playlists?artist={ARTIST}&sort=followers" -H "$AUT
 curl -s "$RECOUP_API/research/genres" -H "$AUTH"
 
 # 1. Either discover by filters, or start from a breakout anchor artist
-curl -s "$RECOUP_API/research/discover?genre=86&country=US&sp_monthly_listeners_min=50000&sp_monthly_listeners_max=200000&sort=weekly_diff.sp_monthly_listeners&limit=50" -H "$AUTH"
+# ⚠️  Genre IDs are 501xxx+ (e.g. hip-hop/rap=501121). Call /research/genres first.
+# ⚠️  /discover may return empty. If so, use anchor-artist + /similar as fallback.
+curl -s "$RECOUP_API/research/discover?genre=501121&country=US&sp_monthly_listeners_min=50000&sp_monthly_listeners_max=200000&sort=weekly_diff.sp_monthly_listeners&limit=50" -H "$AUTH"
 # or
 curl -s "$RECOUP_API/research?q={ANCHOR_ARTIST}&type=artists&beta=true" -H "$AUTH"
 

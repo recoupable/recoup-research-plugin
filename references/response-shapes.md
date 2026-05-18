@@ -2,6 +2,11 @@
 
 Don't guess field names. Chartmetric pass-through responses are richer than the OpenAPI schema enumerates (`additionalProperties: true` everywhere), but these are the fields that exist and matter. If you're looking for a field that isn't here, it probably doesn't exist — dump the raw response once with `jq '.<collection>[0] | keys'` before coding against it.
 
+**jq parsing note:** Some responses (especially `/research/profile`) may contain
+control characters in text fields (e.g. bio/description). If `jq` fails with
+"Invalid string: control characters", pipe through `tr -d '\000-\011\013\014\016-\037'`
+first, or use Python's `json.loads()` which handles them.
+
 ## `/research/similar` → `artists[].*`
 
 ```jsonc
@@ -71,15 +76,40 @@ There is **no** `trend` field and **no** `metrics` object. Momentum is `recent_m
 
 So to filter editorial placements in jq: `.placements[] | select(.playlist.editorial == true)`. To rank by true reach, call `/research/playlist?platform=spotify&id={playlist.id}` for the detail record — the placement `followers` field is usually stale/zero.
 
-## `/research/profile` — nulls don't mean "no data"
+## `/research/profile` — top-level platform fields are ALWAYS null
 
-`/research/profile` is a convenience aggregator and returns `null` for many fields on less-covered artists (`sp_followers`, `sp_monthly_listeners`, `career_stage`, `num_sp_editorial_playlists`, etc.). Don't treat those nulls as "artist has no data" and give up. The individual endpoints pull direct from platform data and often succeed when profile doesn't:
+**Critical:** The top-level platform fields on `/research/profile` (`sp_followers`,
+`sp_monthly_listeners`, `ins_followers`, `tiktok_followers`, etc.) are **always null
+for every artist**, including Drake. This is not a coverage issue — the API simply
+does not populate these top-level fields.
 
-- `sp_followers` / `sp_monthly_listeners` null? → `/research/metrics?source=spotify`
-- `career_stage` / `recent_momentum` null? → `/research/similar?artist=...` (the artist's own row is the first result and has these fields populated even when profile is sparse)
-- `num_sp_editorial_playlists` null or 0? → `/research/playlists?editorial=true` and trust the actual result set
+The real aggregated data lives inside `cm_statistics`:
 
-**Preflight filter decisions with profile counts.** Before calling `/research/playlists?editorial=true`, check `/research/profile.num_sp_editorial_playlists`. If it's 0, an empty editorial result isn't a skill or API bug — the artist genuinely has no editorial placements. Drop the filter or widen to `&indie=true&majorCurator=true&popularIndie=true`.
+```jsonc
+// ❌ These are ALWAYS null — do not use
+profile.sp_followers              // null
+profile.sp_monthly_listeners      // null
+
+// ✅ These are populated — use these
+profile.cm_statistics.sp_followers           // 572376
+profile.cm_statistics.sp_monthly_listeners   // 3019721
+profile.cm_statistics.sp_popularity          // 62
+profile.cm_statistics.ins_followers           // 409600
+profile.cm_statistics.tiktok_followers        // 232200
+profile.cm_statistics.ycs_subscribers         // YouTube subscribers
+profile.cm_statistics.num_sp_editorial_playlists
+profile.cm_statistics.num_sp_playlists
+profile.cm_statistics.sp_playlist_total_reach
+profile.cm_statistics.sp_editorial_playlist_total_reach
+```
+
+If `cm_statistics` fields are also sparse (very new/small artists), fall back:
+
+- Streaming numbers → `/research/metrics?source=spotify`
+- `career_stage` / `recent_momentum` → `/research/similar?artist=...` (the artist's own row is the first result and carries both fields)
+- Editorial playlist count → `/research/playlists?editorial=true` (trust the actual result set)
+
+**Preflight filter decisions with profile counts.** Before calling `/research/playlists?editorial=true`, check `cm_statistics.num_sp_editorial_playlists`. If it's 0, an empty editorial result isn't a skill or API bug — the artist genuinely has no editorial placements. Drop the filter or widen to `&indie=true&majorCurator=true&popularIndie=true`.
 
 ## `/research/milestones` — empty is legit
 

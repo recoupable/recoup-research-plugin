@@ -11,7 +11,7 @@ driving virality, and identify market opportunities.
 
 ```bash
 export RECOUP_API_KEY="recoup_sk_..."
-export RECOUP_API="https://recoup-api.vercel.app/api"
+export RECOUP_API="https://api.recoupable.com/api"
 ```
 
 ## Decision tree
@@ -27,11 +27,14 @@ export RECOUP_API="https://recoup-api.vercel.app/api"
 Find emerging artists before they blow up:
 
 ```bash
-# 0. (Optional) list genre IDs
+# 0. List genre IDs — REQUIRED before using /discover. IDs are in the 501xxx+ range.
+#    e.g. pop=501120, hip-hop/rap=501121, rock=501122, r&b/soul=501125
 curl -s "$RECOUP_API/research/genres" -H "x-api-key: $RECOUP_API_KEY"
 
 # 1. Discover by filters OR start from an anchor artist
-curl -s "$RECOUP_API/research/discover?genre=86&country=US&sp_monthly_listeners_min=50000&sp_monthly_listeners_max=200000&sort=weekly_diff.sp_monthly_listeners&limit=50" \
+# ⚠️  NOTE: /discover may return empty results even with valid filters.
+#    If it returns { artists: [] }, fall through to the anchor-artist approach below.
+curl -s "$RECOUP_API/research/discover?genre=501121&country=US&sp_monthly_listeners_min=50000&sp_monthly_listeners_max=200000&sort=weekly_diff.sp_monthly_listeners&limit=50" \
   -H "x-api-key: $RECOUP_API_KEY"
 
 # Or start from a known artist and find similar emerging ones:
@@ -112,19 +115,24 @@ curl -s "$RECOUP_API/research/track/playlists?id={track_id}&editorial=true" -H "
 
 Available filters for `/research/discover`:
 
-- `--country` (2-letter code)
-- `--genre` (numeric genre ID — get from `/research/genres`)
-- `--band` (true/false)
-- `--pronoun` (she/her, he/him, they/them)
-- `--sp_monthly_listeners_min` / `--sp_monthly_listeners_max`
-- `--sp_followers_min` / `--sp_followers_max`
-- `--tiktok_followers_min` / `--tiktok_followers_max`
-- `--ins_followers_min` / `--ins_followers_max`
-- `--youtube_subscribers_min` / `--youtube_subscribers_max`
-- `--cpp` (cost per play threshold)
-- `--festival-id` (numeric festival ID)
-- `--sort` (e.g. `weekly_diff.sp_monthly_listeners`, `latest.sp_monthly_listeners`)
-- `--limit` / `--offset`
+- `country` — 2-letter ISO code (e.g. `US`, `BR`, `GB`)
+- `genre` — numeric genre ID from `/research/genres` (e.g. `501121` for hip-hop/rap, `501125` for r&b/soul). **IDs are in the 501xxx+ range — NOT single/double digit numbers.**
+- `band` — true/false
+- `pronoun` — she/her, he/him, they/them
+- `sp_monthly_listeners_min` / `sp_monthly_listeners_max`
+- `sp_followers_min` / `sp_followers_max`
+- `tiktok_followers_min` / `tiktok_followers_max`
+- `ins_followers_min` / `ins_followers_max`
+- `youtube_subscribers_min` / `youtube_subscribers_max`
+- `cpp` — cost per play threshold
+- `festival-id` — numeric festival ID
+- `sort` — e.g. `weekly_diff.sp_monthly_listeners`, `latest.sp_monthly_listeners`
+- `limit` / `offset`
+
+**⚠️ Known issue:** `/research/discover` may return `{ artists: [] }` even with
+valid filters. If this happens, use the anchor-artist approach instead:
+start from a known artist → `/research/similar?musicality=high&genre=high` →
+filter results by `career_stage` and platform metrics.
 
 ## Critical gotchas
 

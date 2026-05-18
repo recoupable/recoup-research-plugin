@@ -11,7 +11,7 @@ catalog strategy.
 
 ```bash
 export RECOUP_API_KEY="recoup_sk_..."
-export RECOUP_API="https://recoup-api.vercel.app/api"
+export RECOUP_API="https://api.recoupable.com/api"
 ```
 
 ## Decision tree
@@ -94,9 +94,9 @@ curl -s "$RECOUP_API/research/metrics?artist={ARTIST}&source=tiktok" -H "x-api-k
   snapshot. For bulk, page `/research/track/playlists?id=...&offset=...` per
   track instead (that one *does* paginate).
 - **Hard cap: `limit=100`** on both playlist endpoints. `150`+ → 400.
-- **`/research/profile` aggregate counts (`num_sp_playlists`, etc.) are NOT
-  reachable via detail endpoints.** Use them for magnitude and
-  `sp_playlist_total_reach` for true reach.
+- **`/research/profile` aggregate counts are inside `cm_statistics`** (e.g.
+  `cm_statistics.num_sp_playlists`, NOT top-level). Use them for magnitude
+  and `cm_statistics.sp_playlist_total_reach` for true reach.
 - **`placements[].playlist.followers` is often `0`** — use `peak_position` or
   `/research/playlist?platform=spotify&id=` for true reach.
 - **Past placements (`status=past`) that dropped off = re-pitch opportunities.**
@@ -106,7 +106,7 @@ curl -s "$RECOUP_API/research/metrics?artist={ARTIST}&source=tiktok" -H "x-api-k
 - 2 editorial playlists for 5M+ listeners = severely under-playlisted (pitch immediately)
 - Past placements that dropped off = re-pitch candidates
 - Playlists adding multiple peers = warmest pitch targets
-- `sp_playlist_total_reach` from profile gives the magnitude — detail endpoints give the sample
+- `cm_statistics.sp_playlist_total_reach` from profile gives the magnitude — detail endpoints give the sample
 
 ## Output format
 

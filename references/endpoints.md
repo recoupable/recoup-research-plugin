@@ -6,7 +6,7 @@ All examples assume:
 
 ```bash
 export RECOUP_API_KEY="recoup_sk_..."
-export RECOUP_API="https://recoup-api.vercel.app/api"
+export RECOUP_API="https://api.recoupable.com/api"
 ```
 
 ---
@@ -41,8 +41,11 @@ curl -s "$RECOUP_API/research/profile?artist=Drake" -H "x-api-key: $RECOUP_API_K
 ```
 
 ```bash
-# Profile — bio, genres, social URLs, label, career stage, aggregate counts
-curl -s "$RECOUP_API/research/profile?artist=Drake" -H "x-api-key: $RECOUP_API_KEY" | jq
+# Profile — bio, genres, social URLs, label, aggregate counts
+# ⚠️  Top-level platform fields (sp_followers, sp_monthly_listeners, etc.) are ALWAYS null.
+#    Use .cm_statistics.sp_followers, .cm_statistics.sp_monthly_listeners, etc.
+#    career_stage and recent_momentum are NOT on the profile — get from /similar.
+curl -s "$RECOUP_API/research/profile?artist=Drake" -H "x-api-key: $RECOUP_API_KEY" | jq '.cm_statistics'
 
 # Time-series platform metrics ({ followers, listeners, popularity, ... })
 curl -s "$RECOUP_API/research/metrics?artist=Drake&source=spotify" -H "x-api-key: $RECOUP_API_KEY" | jq
@@ -120,11 +123,14 @@ curl -s "$RECOUP_API/research/charts?platform=spotify&country=US&interval=daily&
   -H "x-api-key: $RECOUP_API_KEY" | jq
 
 # Artist discovery by filters
-curl -s "$RECOUP_API/research/discover?country=US&genre=86&sp_monthly_listeners_min=50000&sp_monthly_listeners_max=200000&sort=weekly_diff.sp_monthly_listeners&limit=50" \
+# ⚠️  Genre IDs are in the 501xxx+ range (e.g. pop=501120, hip-hop/rap=501121, r&b/soul=501125).
+#    Always call /research/genres first to get valid IDs.
+# ⚠️  /discover may return empty results. If { artists: [] }, use /similar as fallback.
+curl -s "$RECOUP_API/research/discover?country=US&genre=501121&sp_monthly_listeners_min=50000&sp_monthly_listeners_max=200000&sort=weekly_diff.sp_monthly_listeners&limit=50" \
   -H "x-api-key: $RECOUP_API_KEY" | jq
 
-# Genre IDs (use with /research/discover)
-curl -s "$RECOUP_API/research/genres" -H "x-api-key: $RECOUP_API_KEY" | jq
+# Genre IDs (REQUIRED before calling /research/discover — IDs are NOT obvious)
+curl -s "$RECOUP_API/research/genres" -H "x-api-key: $RECOUP_API_KEY" | jq '.genres[:10]'
 
 # Festival list
 curl -s "$RECOUP_API/research/festivals" -H "x-api-key: $RECOUP_API_KEY" | jq
@@ -227,7 +233,7 @@ Both endpoints reject `limit > 100` with a `400`. Empirically verified — `limi
 
 `/research/profile` reports counts like `num_sp_playlists: 3,418,778` (Drake) and `num_sp_editorial_playlists: 2,392`. **The detail endpoints will never return numbers that big.** Profile aggregates are derived from Chartmetric's full graph; `/research/playlists` and `/research/track/playlists` each expose at most ~100 per call, and the track-level total bottoms out well below the aggregate count (often low hundreds per track, sometimes ~40 even with all 10 flags `true`).
 
-**Plan for this:** use profile counts as the signal of "does this artist have playlist support at all?" and the detail endpoints as a sampled list of top placements. For total reach, `/research/profile.sp_playlist_total_reach` and `sp_editorial_playlist_total_reach` are the trustworthy numbers.
+**Plan for this:** use profile counts as the signal of "does this artist have playlist support at all?" and the detail endpoints as a sampled list of top placements. For total reach, `cm_statistics.sp_playlist_total_reach` and `cm_statistics.sp_editorial_playlist_total_reach` are the trustworthy numbers.
 
 ---
 
@@ -239,3 +245,21 @@ Two gotchas:
 
 - For `metrics`, **YouTube uses `youtube_channel` or `youtube_artist`** — not plain `youtube`.
 - `/research/audience` is a different endpoint with its own narrower enum: `platform=instagram|tiktok|youtube` (default `instagram`). Do **not** send `youtube_channel` there.
+
+---
+
+## Credit costs
+
+Some endpoints cost more credits than others. If the account returns
+`{ "error": "insufficient_credits" }`, the response includes `remaining_credits`,
+`required_credits`, and a `checkoutUrl` for the user to add credits.
+
+| Cost tier | Endpoints |
+| --------- | --------- |
+| Free / 1 credit | `search`, `profile`, `metrics`, `cities`, `similar`, `playlists`, `audience`, `insights`, `rank`, `charts`, `tracks`, `career`, `milestones`, `urls`, `instagram-posts`, `venues`, `genres`, `web` |
+| 5 credits | `lookup`, `albums`, `track`, `playlist`, `curator`, `track/playlists`, `festivals`, `radio`, `discover` |
+| Higher | `enrich`, `deep`, `people`, `extract` (POST endpoints — cost varies) |
+
+Credit costs are approximate and may change. When you get a 402 or
+`insufficient_credits` error, surface it to the user with the checkout link —
+don't silently fail or retry.

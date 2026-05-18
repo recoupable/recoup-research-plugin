@@ -9,12 +9,12 @@ Full-stack artist research through the Recoup API. This skill is the **default
 entry point** — it runs the complete research sweep and synthesizes findings
 into an actionable brief.
 
-All endpoints live under `https://recoup-api.vercel.app/api/research` and
+All endpoints live under `https://api.recoupable.com/api/research` and
 authenticate with `x-api-key`.
 
 ```bash
 export RECOUP_API_KEY="recoup_sk_..."   # already set in Recoup sandboxes
-export RECOUP_API="https://recoup-api.vercel.app/api"
+export RECOUP_API="https://api.recoupable.com/api"
 ```
 
 Reference docs: <https://developers.recoupable.com>
@@ -78,31 +78,61 @@ curl -s "$RECOUP_API/research/urls?artist={ARTIST}" \
   -H "x-api-key: $RECOUP_API_KEY" | jq
 ```
 
+## Reading profile data correctly
+
+`/research/profile` returns two layers of data. The top-level fields (`sp_followers`,
+`sp_monthly_listeners`, etc.) are **always null** — they are not populated by the API.
+The real aggregated data lives inside the `cm_statistics` object:
+
+```jsonc
+// ❌ WRONG — these are always null
+profile.sp_followers          // null
+profile.sp_monthly_listeners  // null
+
+// ✅ CORRECT — use cm_statistics
+profile.cm_statistics.sp_followers           // 572376
+profile.cm_statistics.sp_monthly_listeners   // 3019721
+profile.cm_statistics.sp_popularity          // 62
+profile.cm_statistics.ins_followers           // 409600
+profile.cm_statistics.tiktok_followers        // 232200
+profile.cm_statistics.ycs_subscribers         // YouTube subscribers
+profile.cm_statistics.num_sp_editorial_playlists
+profile.cm_statistics.sp_playlist_total_reach
+profile.cm_statistics.sp_editorial_playlist_total_reach
+```
+
+If `cm_statistics` itself is missing or sparse, fall back to individual
+endpoints (`/metrics?source=spotify`, `/similar` for career_stage).
+
+**career_stage and recent_momentum** are NOT on the profile. Get them from
+`/research/similar?artist={ARTIST}` — the artist's own row is always the first
+result and carries both fields.
+
 ## Synthesis template
 
 After gathering data, synthesize into this structure:
 
 ### Artist Brief: {Name}
 
-**Career Stage:** {from similar or profile} | **Momentum:** {recent_momentum}
-**Global Rank:** {from rank endpoint} | **Label:** {from profile}
+**Career Stage:** {from /similar — first result} | **Momentum:** {recent_momentum from /similar}
+**Global Rank:** {cm_artist_rank from profile, or /rank endpoint} | **Label:** {record_label from profile}
 
 **Streaming Snapshot:**
-- Spotify: {monthly_listeners} listeners / {followers} followers ({follower:listener ratio}%)
-- TikTok: {followers} followers
-- Instagram: {followers} followers
-- YouTube: {subscribers} subscribers
+- Spotify: {cm_statistics.sp_monthly_listeners} listeners / {cm_statistics.sp_followers} followers ({follower:listener ratio}%)
+- TikTok: {cm_statistics.tiktok_followers} followers
+- Instagram: {cm_statistics.ins_followers} followers
+- YouTube: {cm_statistics.ycs_subscribers} subscribers
 
 **Geographic Hotspots:** {top 5 cities from /cities}
 
 **Audience Profile:** {age/gender breakdown from /audience}
 
 **Playlist Position:**
-- {count} editorial placements, {count} total
-- Total playlist reach: {sp_playlist_total_reach from profile}
-- Notable placements: {top 3 by reach}
+- {cm_statistics.num_sp_editorial_playlists} editorial placements, {cm_statistics.num_sp_playlists} total
+- Total playlist reach: {cm_statistics.sp_playlist_total_reach}
+- Notable placements: {top 3 from /playlists by reach}
 
-**Competitive Position:** {career stage vs similar artists, notable gaps or strengths}
+**Competitive Position:** {career_stage vs similar artists, notable gaps or strengths}
 
 **Key Insights:** {from /insights endpoint}
 
@@ -113,12 +143,23 @@ After gathering data, synthesize into this structure:
 These failure modes will eat your time:
 
 - **Search: `match_strength < 1` = not found.** Real matches score 100s–50,000s; noise is 0.005–0.1. Don't pass sub-1 IDs into detail endpoints.
-- **`/research/profile` returns `null` for many fields on less-covered artists.** Fall back to individual endpoints — they hit platform data directly.
+- **`/research/profile` top-level platform fields are ALWAYS null.** `sp_followers`, `sp_monthly_listeners`, etc. at the top level are never populated. Use `cm_statistics.sp_followers`, `cm_statistics.sp_monthly_listeners`, etc. instead. If `cm_statistics` is also sparse, fall back to `/metrics?source=spotify`.
 - **`/research/metrics` uses `youtube_channel` or `youtube_artist`**, not plain `youtube`.
 - **`/research/audience?platform=` accepts only `instagram | tiktok | youtube`.**
 - **For URLs, route through `/research/lookup?url=` first.** `/profile?artist=<URL>` works sometimes but 404/406s for others.
 - **POST endpoints have real latency.** `/enrich` 60–90s, `/deep` 2+ min. Set client timeouts to ≥3 min.
-- **Don't guess field names.** `recent_momentum` not `trend`; platform counts are top-level (`sp_followers`, `ins_followers`), no `metrics` wrapper.
+- **Don't guess field names.** `recent_momentum` not `trend`; platform counts live inside `cm_statistics` (`cm_statistics.sp_followers`, `cm_statistics.ins_followers`), NOT at the profile top level. On `/similar` results, platform counts ARE top-level.
+
+## Credit awareness
+
+Some endpoints cost more credits than others (see `references/endpoints.md`).
+If any call returns `{ "error": "insufficient_credits" }`, the response includes
+`remaining_credits`, `required_credits`, and a `checkoutUrl`. Surface this to
+the user — don't silently skip the data or retry.
+
+The full research sweep above uses mostly free/1-credit endpoints. The
+credit-heavier calls are: `/albums` (5), `/lookup` (5), `/track/playlists` (5),
+and the POST web intelligence endpoints.
 
 ## Graceful degradation
 

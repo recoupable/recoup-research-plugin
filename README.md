@@ -49,7 +49,7 @@ export RECOUP_API_KEY="recoup_sk_..."
 Don't have a key? Get one instantly:
 
 ```bash
-curl -s -X POST "https://recoup-api.vercel.app/api/agents/signup" \
+curl -s -X POST "https://api.recoupable.com/api/agents/signup" \
   -H "Content-Type: application/json" \
   -d '{"email": "agent+'"$(date +%s)-$RANDOM"'@recoupable.com"}' | jq -r .api_key
 ```
