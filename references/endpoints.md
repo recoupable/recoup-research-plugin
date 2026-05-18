@@ -125,7 +125,6 @@ curl -s "$RECOUP_API/research/charts?platform=spotify&country=US&interval=daily&
 # Artist discovery by filters
 # ⚠️  Genre IDs are in the 501xxx+ range (e.g. pop=501120, hip-hop/rap=501121, r&b/soul=501125).
 #    Always call /research/genres first to get valid IDs.
-# ⚠️  /discover may return empty results. If { artists: [] }, use /similar as fallback.
 curl -s "$RECOUP_API/research/discover?country=US&genre=501121&sp_monthly_listeners_min=50000&sp_monthly_listeners_max=200000&sort=weekly_diff.sp_monthly_listeners&limit=50" \
   -H "x-api-key: $RECOUP_API_KEY" | jq
 

@@ -32,8 +32,6 @@ Find emerging artists before they blow up:
 curl -s "$RECOUP_API/research/genres" -H "x-api-key: $RECOUP_API_KEY"
 
 # 1. Discover by filters OR start from an anchor artist
-# ⚠️  NOTE: /discover may return empty results even with valid filters.
-#    If it returns { artists: [] }, fall through to the anchor-artist approach below.
 curl -s "$RECOUP_API/research/discover?genre=501121&country=US&sp_monthly_listeners_min=50000&sp_monthly_listeners_max=200000&sort=weekly_diff.sp_monthly_listeners&limit=50" \
   -H "x-api-key: $RECOUP_API_KEY"
 
@@ -129,10 +127,10 @@ Available filters for `/research/discover`:
 - `sort` — e.g. `weekly_diff.sp_monthly_listeners`, `latest.sp_monthly_listeners`
 - `limit` / `offset`
 
-**⚠️ Known issue:** `/research/discover` may return `{ artists: [] }` even with
-valid filters. If this happens, use the anchor-artist approach instead:
-start from a known artist → `/research/similar?musicality=high&genre=high` →
-filter results by `career_stage` and platform metrics.
+**Fallback:** If `/research/discover` returns `{ artists: [] }`, use the
+anchor-artist approach instead: start from a known artist →
+`/research/similar?musicality=high&genre=high` → filter results by
+`career_stage` and platform metrics.
 
 ## Critical gotchas
 
