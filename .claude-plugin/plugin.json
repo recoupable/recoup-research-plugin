@@ -1,7 +1,7 @@
 {
   "name": "recoup-research-plugin",
   "version": "0.1.0",
-  "description": "Claude Code plugin for Recoup research workflows — artist research, audience analysis, trend scans, and market intelligence for the Recoup platform.",
+  "description": "Music industry research: artist analytics, audience insights, playlist intelligence, competitive analysis, trend detection, and outreach — powered by Recoup's research API.",
   "author": {
     "name": "Recoup",
     "email": "support@recoupable.com",
@@ -11,14 +11,15 @@
   "repository": "https://github.com/recoupable/recoup-research-plugin",
   "license": "Apache-2.0",
   "keywords": [
-    "recoup",
-    "recoup-research",
     "music",
     "research",
-    "artist-research",
+    "artist-analytics",
+    "playlist-pitching",
     "audience-analysis",
-    "trend-analysis",
-    "ai-agents",
+    "competitive-analysis",
+    "trend-detection",
+    "chartmetric",
+    "music-industry",
     "agent-skills"
   ]
 }
