@@ -58,7 +58,10 @@ curl -s -X POST "https://api.recoupable.com/api/agents/signup" \
 
 | Skill | What it does |
 |-------|-------------|
-| [recoup-artist-research](skills/recoup-artist-research) | Full artist research sweep — profile, metrics, audience, playlists, competitive position. The default entry point. |
+| [recoup-weekly-brief](skills/recoup-weekly-brief) | **Customer-facing.** Dated, delta-focused weekly artist brief. Fires 5 endpoints in parallel, diffs vs the prior brief, writes a markdown file the customer opens every Monday. |
+| [recoup-tiktok-per-song](skills/recoup-tiktok-per-song) | **Customer-facing.** Per-track TikTok velocity table. Refuses to invent counts for tracks the API doesn't have data on — prints "no data" instead. Targets the #1 customer ask. |
+| [recoup-release-pack](skills/recoup-release-pack) | **Customer-facing.** Structured pre-release marketing brief: 3 visualizer directions, 5 content angles, ranked playlist targets, platform hooks, narrative thread. Grounded input for downstream creative work, not finished assets. |
+| [recoup-artist-research](skills/recoup-artist-research) | Full artist research sweep — profile, metrics, audience, playlists, competitive position. The default one-shot entry point. |
 | [recoup-playlist-intelligence](skills/recoup-playlist-intelligence) | Playlist pitching targets, gap analysis, catalog optimization. Find which playlists peers are on that you aren't. |
 | [recoup-audience-analysis](skills/recoup-audience-analysis) | Audience demographics, geographic strategy, TikTok-to-Spotify pipeline, tour routing, market expansion. |
 | [recoup-competitive-analysis](skills/recoup-competitive-analysis) | Head-to-head comparison, roster benchmarking, collaboration targets, release timing strategy. |
