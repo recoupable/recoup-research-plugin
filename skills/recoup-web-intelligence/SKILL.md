@@ -68,7 +68,7 @@ curl -s -X POST "$RECOUP_API/research/enrich" \
   -H "x-api-key: $RECOUP_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "input": "Atlantic Records",
+    "input": "<entity name — artist, label, manager, songwriter, venue>",
     "schema": {
       "type": "object",
       "properties": {
