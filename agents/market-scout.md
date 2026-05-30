@@ -6,6 +6,8 @@ tools:
   - Glob
   - Grep
   - Bash
+  - Write
+  - Edit
 ---
 
 # Market Scout
