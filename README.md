@@ -65,6 +65,8 @@ curl -s -X POST "https://api.recoupable.com/api/agents/signup" \
 | [recoup-trend-detection](skills/recoup-trend-detection) | A&R discovery, chart analysis, viral song autopsy. Find emerging artists before they blow up. |
 | [recoup-people-outreach](skills/recoup-people-outreach) | Industry people search, contact enrichment, outreach draft generation, CRM enrichment. |
 | [recoup-web-intelligence](skills/recoup-web-intelligence) | Web search, deep research, URL extraction, entity enrichment. Also the graceful degradation fallback. |
+| [recoup-roster-health](skills/recoup-roster-health) | **Customer-facing.** Portfolio-level roster scan — ranks all artists by growth velocity, flags at-risk acts, measures concentration risk, and surfaces cross-roster opportunities. Replaces 20+ individual lookups with one executive-level health report. |
+| [recoup-signing-package](skills/recoup-signing-package) | **Customer-facing.** Decision-grade signing evaluation — market position, audience quality, competitive landscape, content potential, risk factors, and a structured sign/pass/watch recommendation. The document an A&R team presents at a signing meeting. |
 
 ## Commands
 
@@ -103,7 +105,9 @@ skills/
 ├── recoup-competitive-analysis/ # Comparison & positioning
 ├── recoup-trend-detection/     # Discovery & charts
 ├── recoup-people-outreach/     # People search & outreach
-└── recoup-web-intelligence/    # Web research fallback
+├── recoup-web-intelligence/    # Web research fallback
+├── recoup-roster-health/       # Portfolio-level roster scan
+└── recoup-signing-package/     # Signing evaluation package
 commands/
 ├── recoup-research.md          # /recoup-research
 ├── recoup-scout.md             # /recoup-scout
