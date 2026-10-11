@@ -262,5 +262,5 @@ legitimately return `billingUrl`; distinguish by error type.
 
 Fifteen legacy music-research routes remain in source after their docs removal.
 Their coverage and provider support are under evaluation (mono#325), not verified
-by this reference. Preserve returned provenance; do not relabel Songstats as
-Chartmetric or a measurement-store snapshot as fresh provider history.
+by this reference. Preserve returned provenance and capture dates. Missing provenance remains unknown;
+a stored snapshot is not automatically fresh research history.

@@ -170,9 +170,9 @@ playlist-pitching workflows — skip it for the TikTok view.
 
 ## Credit awareness
 
-- `/research/tracks` — typically 1 credit
-- `/research/track?id=` — typically 1 credit per call
-- A 40-track catalog → ~41 calls → ~41 credits
+- `/research/tracks` — $0.05 (50,000 micro-dollar credits) per successful call
+- `/research/track?id=` — $0.05 (50,000 micro-dollar credits) per successful call
+- A 40-track catalog → 41 successful calls → $2.05 (2,050,000 micro-dollar credits)
 
 For very large catalogs (Wiz Khalifa, Mac Miller-tier), warn the user before
 fanning out 100+ track calls. Offer to cap at the top 25 tracks by
