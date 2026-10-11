@@ -144,13 +144,13 @@ When per-song data exists, show:
 ## When the catalog endpoint fails
 
 If `/research/tracks` returns empty for an artist that clearly has releases
-(known from `/research/profile`), it usually means Chartmetric hasn't ingested
-the catalog. Fallback options:
+(known from `/research/profile`), catalog coverage is unavailable or incomplete
+for the connected data source. Fallback options:
 
-1. Try `/research/albums?artist=...` to enumerate releases, then per-album
-   tracks
-2. If still empty, tell the user honestly: "Catalog not ingested in
-   Chartmetric. Cannot produce per-song view. Try `/recoup-brief` for
+1. Try `/research/albums?artist_id=...` with the exact research artist ID.
+   Inspect returned catalog entries; they can be track-shaped rather than albums.
+2. If still empty, tell the user honestly: "Catalog coverage is unavailable.
+   Cannot produce per-song view. Try `/recoup-brief` for
    artist-level signal."
 
 **Do not** make up a track list from web search or guess track names. The
