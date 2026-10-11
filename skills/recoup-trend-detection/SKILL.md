@@ -66,7 +66,7 @@ curl -s "$RECOUP_API/research/track?id={cm_track_id}" -H "x-api-key: $RECOUP_API
 curl -s "$RECOUP_API/research/metrics?artist={ARTIST}&source=spotify" -H "x-api-key: $RECOUP_API_KEY"
 curl -s "$RECOUP_API/research/metrics?artist={ARTIST}&source=tiktok" -H "x-api-key: $RECOUP_API_KEY"
 
-# 3. Playlist timeline for this track (5 credits)
+# 3. Playlist timeline for this track ($0.05 = 50,000 micro-dollar credits per successful call; both calls total $0.10)
 curl -s "$RECOUP_API/research/track/playlists?id={cm_track_id}&status=current" -H "x-api-key: $RECOUP_API_KEY"
 curl -s "$RECOUP_API/research/track/playlists?id={cm_track_id}&status=past&since=2025-01-01" -H "x-api-key: $RECOUP_API_KEY"
 

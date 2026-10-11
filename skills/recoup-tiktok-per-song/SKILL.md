@@ -144,13 +144,13 @@ When per-song data exists, show:
 ## When the catalog endpoint fails
 
 If `/research/tracks` returns empty for an artist that clearly has releases
-(known from `/research/profile`), it usually means Chartmetric hasn't ingested
-the catalog. Fallback options:
+(known from `/research/profile`), catalog coverage is unavailable or incomplete
+for the connected data source. Fallback options:
 
-1. Try `/research/albums?artist=...` to enumerate releases, then per-album
-   tracks
-2. If still empty, tell the user honestly: "Catalog not ingested in
-   Chartmetric. Cannot produce per-song view. Try `/recoup-brief` for
+1. Try `/research/albums?artist_id=...` with the exact research artist ID.
+   Inspect returned catalog entries; they can be track-shaped rather than albums.
+2. If still empty, tell the user honestly: "Catalog coverage is unavailable.
+   Cannot produce per-song view. Try `/recoup-brief` for
    artist-level signal."
 
 **Do not** make up a track list from web search or guess track names. The
@@ -160,19 +160,19 @@ catalog endpoint being empty is a real signal about data availability.
 
 | Endpoint | What it returns |
 |---|---|
-| `/research/tracks?artist=` | Track list w/ Chartmetric IDs |
-| `/research/track?id=` | Per-track detail (may include TT fields) |
-| `/research/track/playlists?id=` | Playlists hosting this track (5 credits) |
-| `/research/albums?artist=` | Album list (fallback for catalog) |
+| `/research/tracks?artist=` | Available track catalog; select generic research IDs from Search when needed |
+| `/research/track?id=` | Available track metadata; per-song TikTok counts are not guaranteed |
+| `/research/track/playlists?id=` | Playlists hosting this track ($0.05 = 50,000 micro-dollar credits) |
+| `/research/albums?artist_id=` | Catalog view using an exact research artist ID; can contain track-shaped entries |
 
-`/research/track/playlists` is expensive (5 credits) and only relevant for
+`/research/track/playlists` is expensive ($0.05 = 50,000 micro-dollar credits) and only relevant for
 playlist-pitching workflows — skip it for the TikTok view.
 
 ## Credit awareness
 
-- `/research/tracks` — typically 1 credit
-- `/research/track?id=` — typically 1 credit per call
-- A 40-track catalog → ~41 calls → ~41 credits
+- `/research/tracks` — $0.05 (50,000 micro-dollar credits) per successful call
+- `/research/track?id=` — $0.05 (50,000 micro-dollar credits) per successful call
+- A 40-track catalog → 41 successful calls → $2.05 (2,050,000 micro-dollar credits)
 
 For very large catalogs (Wiz Khalifa, Mac Miller-tier), warn the user before
 fanning out 100+ track calls. Offer to cap at the top 25 tracks by

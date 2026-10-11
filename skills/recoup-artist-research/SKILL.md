@@ -154,12 +154,13 @@ These failure modes will eat your time:
 
 Some endpoints cost more credits than others (see `references/endpoints.md`).
 If any call returns `{ "error": "insufficient_credits" }`, the response includes
-`remaining_credits`, `required_credits`, and a `checkoutUrl`. Surface this to
+`remaining_credits`, `required_credits`, and a `billingUrl`. Surface this to
 the user — don't silently skip the data or retry.
 
-The full research sweep above uses mostly free/1-credit endpoints. The
-credit-heavier calls are: `/albums` (5), `/lookup` (5), `/track/playlists` (5),
-and the POST web intelligence endpoints.
+Credits use micro-dollars: 1,000,000 credits = $1. Successful music-research
+reads generally charge $0.05 (50,000 credits); web intelligence has endpoint-specific
+prices. Do not assume legacy routes are free or budget an entire sweep at 1–6 credits.
+Provider availability and commercial limits remain under evaluation.
 
 ## Graceful degradation
 
