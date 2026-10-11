@@ -192,9 +192,11 @@ For `/research/metrics?source=youtube`, use `youtube_channel` or
 
 ## Credit awareness
 
-The 5 endpoints in step 4 are all low-credit (1 credit or free each).
-A full brief costs ≤5 credits per run. If any call returns
-`{ "error": "insufficient_credits" }`, surface the `checkoutUrl` to the user
+Credits use micro-dollars: 1,000,000 credits = $1. Each successful billed
+music-research read generally costs $0.05 (50,000 credits). A five-read brief
+can therefore cost $0.25 (250,000 credits), depending on the exact operations.
+Check current endpoint pricing and availability before the run. If any call returns
+`{ "error": "insufficient_credits" }`, surface the `billingUrl` to the user
 instead of silently dropping the section.
 
 ## Graceful degradation

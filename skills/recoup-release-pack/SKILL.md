@@ -229,9 +229,11 @@ tracking how the pack evolves as more data comes in.
 
 ## Credit awareness
 
-The 5 parallel calls in step 2 are typically 1 credit each (≤5 credits per
-run). The optional `/research/track` adds 1 more. Total budget per pack: ~6
-credits.
+Credits use micro-dollars: 1,000,000 credits = $1. Five successful billed
+music-research reads generally cost $0.25 (250,000 credits); a sixth can bring
+that to $0.30 (300,000 credits). Check the exact endpoint prices and provider
+availability before running. On insufficient credits, surface the returned
+`billingUrl` and stop; do not create a charge or retry blindly.
 
 ## References
 

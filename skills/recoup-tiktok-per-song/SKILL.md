@@ -162,10 +162,10 @@ catalog endpoint being empty is a real signal about data availability.
 |---|---|
 | `/research/tracks?artist=` | Track list w/ Chartmetric IDs |
 | `/research/track?id=` | Per-track detail (may include TT fields) |
-| `/research/track/playlists?id=` | Playlists hosting this track (5 credits) |
+| `/research/track/playlists?id=` | Playlists hosting this track ($0.05 = 50,000 micro-dollar credits) |
 | `/research/albums?artist=` | Album list (fallback for catalog) |
 
-`/research/track/playlists` is expensive (5 credits) and only relevant for
+`/research/track/playlists` is expensive ($0.05 = 50,000 micro-dollar credits) and only relevant for
 playlist-pitching workflows — skip it for the TikTok view.
 
 ## Credit awareness
