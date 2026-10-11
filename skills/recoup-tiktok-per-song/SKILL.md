@@ -160,10 +160,10 @@ catalog endpoint being empty is a real signal about data availability.
 
 | Endpoint | What it returns |
 |---|---|
-| `/research/tracks?artist=` | Track list w/ Chartmetric IDs |
-| `/research/track?id=` | Per-track detail (may include TT fields) |
+| `/research/tracks?artist=` | Available track catalog; select generic research IDs from Search when needed |
+| `/research/track?id=` | Available track metadata; per-song TikTok counts are not guaranteed |
 | `/research/track/playlists?id=` | Playlists hosting this track ($0.05 = 50,000 micro-dollar credits) |
-| `/research/albums?artist=` | Album list (fallback for catalog) |
+| `/research/albums?artist_id=` | Catalog view using an exact research artist ID; can contain track-shaped entries |
 
 `/research/track/playlists` is expensive ($0.05 = 50,000 micro-dollar credits) and only relevant for
 playlist-pitching workflows — skip it for the TikTok view.
